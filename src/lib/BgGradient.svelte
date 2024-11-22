@@ -1,0 +1,1 @@
+<div class="w-full h-full flex flex-col justify-start items-end gap-4 fixed opacity-10 bg-gradient-to-tr from-blue-700 to-red-700"></div>
