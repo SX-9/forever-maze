@@ -18,9 +18,9 @@
     6. repeat steps 2-5 for as long as you want
 */
 
-type Direction = 0 | 1 | 2 | 3 | 4;
-export const symbols = ['--', '=>', 'VV', '<<', '^^'];
-export const directions: Record<string, Direction> = {
+export type Direction = 0 | 1 | 2 | 3 | 4;
+export const symbols = ['--', '>>', 'VV', '<<', '^^'];
+export const directions: Record<'origin' | 'up' | 'down' | 'left' | 'right', Direction> = {
     origin: 0,
     right: 1,
     down: 2,
@@ -53,22 +53,41 @@ export class Maze<Type> {
         }
     }
 
+    getWalls() {
+        return this.grid.map((row: {
+            direction: Direction,
+        }[], y: number) => row.map((node, x) => ({
+            ...node,
+            walls: [
+                (y === 0 || (this.grid[y - 1][x]?.direction !== directions.down && this.grid[y][x].direction !== directions.up)),
+                (y === this.height - 1 || (this.grid[y + 1][x]?.direction !== directions.up && this.grid[y][x].direction !== directions.down)),
+                (x === 0 || (this.grid[y][x - 1]?.direction !== directions.right && this.grid[y][x].direction !== directions.left)),
+                (x === this.width - 1 || (this.grid[y][x + 1]?.direction !== directions.left && this.grid[y][x].direction !== directions.right)),
+            ],
+        })));
+    }
+
     setNode([x, y]: number[], direction: Direction, options: {
         payload?: Type,
         triggerHook?: boolean,
     }) {
-        if (direction === 0) {
-            for (let i = 0; i < this.height; i++) {
-                for (let j = 0; j < this.width; j++) {
-                    if (this.grid[i][j].direction === 0) return console.error(`origin node already exists for ${x} ${y} at ${j} ${i}`);
+        return new Promise<void>((resolve, reject) => {
+            if (x < 0 || x >= this.width || y < 0 || y >= this.height) reject('out of bound');
+    
+            if (direction === 0) {
+                for (let i = 0; i < this.height; i++) {
+                    for (let j = 0; j < this.width; j++) {
+                        if (this.grid[i][j].direction === 0) reject('origin node already exists');
+                    }
                 }
             }
-        }
-        
-        this.grid[y][x].direction = direction;
-        if (options.payload) this.grid[y][x].payload = options.payload;
-
-        if (options.triggerHook !== false) this.runUpdateHooks();
+    
+            this.grid[y][x].direction = direction;
+            if (options.payload) this.grid[y][x].payload = options.payload;
+    
+            if (options.triggerHook !== false) this.runUpdateHooks();
+            resolve();
+        });
     }
 
     getOriginCoords() {
@@ -80,30 +99,37 @@ export class Maze<Type> {
         return [0, 0];
     }
 
-    getNeighbors([y, x]: number[]) {
-        let neighbors = [];
-        if (x > 0) neighbors.push([y, x - 1]);
-        if (x < this.width - 1) neighbors.push([y, x + 1]);
-        if (y > 0) neighbors.push([y - 1, x]);
-        if (y < this.height - 1) neighbors.push([y + 1, x]);
-        return neighbors;
-    }
+    originShift(direction?: Direction) {
+        return new Promise<void>(async (resolve, reject) => {
+            let origin = this.getOriginCoords();
 
-    originShift() {
-        let origin = this.getOriginCoords();
-        let neighbors = this.getNeighbors(origin);
-        let selectedNeighbor = this.getNeighbors(origin)[Math.floor(Math.random() * neighbors.length)];
-        
-        let direction: Direction = 0;
-        if (selectedNeighbor[0] === origin[0] && selectedNeighbor[1] < origin[1]) direction = directions.up; // x is same and selected y is less than origin y (up)
-        if (selectedNeighbor[0] === origin[0] && selectedNeighbor[1] > origin[1]) direction = directions.down; // x is same and selected y is more than origin y (down)
-        if (selectedNeighbor[1] === origin[1] && selectedNeighbor[0] < origin[0]) direction = directions.left; // y is same and selected x is less than origin x (left)
-        if (selectedNeighbor[1] === origin[1] && selectedNeighbor[0] > origin[0]) direction = directions.right; // y is same and selected x is more than origin x (right)
+            if (direction) {
+                if (
+                    (direction === directions.right && origin[0] + 1 >= this.width) ||
+                    (direction === directions.left && origin[0] - 1 < 0) ||
+                    (direction === directions.down && origin[1] + 1 >= this.height) ||
+                    (direction === directions.up && origin[1] - 1 < 0)
+                ) return reject('out of bound');
+            } else {
+                let availableDirections: Direction[] = [];
+                if (origin[0] + 1 < this.width) availableDirections.push(directions.right);
+                if (origin[0] - 1 >= 0) availableDirections.push(directions.left);
+                if (origin[1] + 1 < this.height) availableDirections.push(directions.down);
+                if (origin[1] - 1 >= 0) availableDirections.push(directions.up);
+                direction = availableDirections[Math.floor(Math.random() * availableDirections.length)];
+            }
 
-        this.setNode(origin, direction, { triggerHook: false });
-        this.setNode(selectedNeighbor, 0, { triggerHook: false });
-
-        this.runUpdateHooks();
+            let selectedNeighbor: [number, number] = [
+                origin[0] + (direction === directions.right ? 1 : direction === directions.left ? -1 : 0),
+                origin[1] + (direction === directions.down ? 1 : direction === directions.up ? -1 : 0),
+            ];
+    
+            await this.setNode(origin, direction, { triggerHook: false }).catch(reject);
+            await this.setNode(selectedNeighbor, 0, { triggerHook: false }).catch(reject);
+    
+            this.runUpdateHooks();
+            resolve();
+        });
     }
 
     runUpdateHooks() {

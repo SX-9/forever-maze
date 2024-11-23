@@ -16,7 +16,7 @@
     function reset() {
         if (!confirm('Are you sure?')) return;
         localStorage.clear();
-        window.location.reload();
+        goto('/settings');
     }
 
     function settings() {

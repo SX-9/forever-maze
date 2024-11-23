@@ -33,7 +33,7 @@
     <div class="w-48">
         <div class="flex justify-between items-center w-full">
             <label for="speed">Speed:</label>
-            <input class="w-24" type="number" placeholder="speed" bind:value={settings.speed}>
+            <input class="w-24" type="number" min="0" placeholder="speed" bind:value={settings.speed}>
         </div>
         <div class="flex justify-between items-center w-full">
             <label for="width">Width:</label>
@@ -44,5 +44,11 @@
             <input class="w-24" type="number" placeholder="height" bind:value={settings.height}>
         </div>
     </div>
-    <button type="submit" class="w-min whitespace-nowrap">Save</button>
+    <div class="flex gap-4 items-center">
+        <button type="submit" class="w-min whitespace-nowrap">Save</button>
+        <span class="text-red-500">
+            Warning: changing maze sizes on a saved game is incompatible!
+            <br>It's recommended to reset the game before changing the sizes.
+        </span>
+    </div>
 </form>
