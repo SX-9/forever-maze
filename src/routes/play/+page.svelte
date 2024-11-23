@@ -8,9 +8,7 @@
     let grid = $state(maze.getWalls());
     let autogen = $state(false);
     let error = $state('.');
-    let gameState = $state({
-        health: 100,
-    });
+    let gameState = $state({});
 
     function errorCatch(e: Error) {
         error = e.toString();
@@ -50,23 +48,14 @@
     });
 
     $effect(() => {
-        if (gameState.health > 100) gameState.health = 100;
-        if (gameState.health < 0) gameState.health = 0;
-
         localStorage.setItem('gameState', JSON.stringify(gameState));
-
-        if (gameState.health <= 0) {
-            alert('You died! Triggering reset...');
-            localStorage.clear();
-            window.location.reload();
-        }
     });
 </script>
 
 <div class="w-min h-full max-w-min max-h-full overflow-auto p-4 mx-auto flex flex-col justify-center items-center">
-    <div class="">
+    <div>
         {#each grid as row}
-            <div class="flex w-full justify-evenly">
+            <div class="flex">
                 {#each row as node}
                     <div
                         class="size-8 p-1 border-transparent border
@@ -75,9 +64,8 @@
                             data-[wall-left=true]:border-l-gray-400
                             data-[wall-right=true]:border-r-gray-400"
                         data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
-                        data-direction={node.direction}
-                    >
-                        <span data-direction={node.direction} class="text-gray-900 data-[direction=0]:text-red-900">{symbols[node.direction]}</span>
+                        data-direction={node.direction}>
+                        <span data-direction={node.direction} class="text-gray-900 data-[direction=0]:text-red-700">{symbols[node.direction]}</span>
                     </div>
                 {/each}
             </div>
@@ -87,14 +75,6 @@
 </div>
 
 <div class="fixed bottom-0 px-10 w-full object-cover h-10 flex gap-2 justify-between items-center bg-gray-800">
-    <div class="flex gap-2 justify-between items-center">
-        <span class="text-sm">Health ({gameState.health})</span>
-        <progress
-            class="w-64 h-4 [&::-webkit-progress-value]:bg-red-800 [&::-moz-progress-bar]:bg-red-800"
-            value={gameState.health}
-            max="100"
-        ></progress>
-    </div>
     <div>
         <input type="checkbox" name="auto" bind:checked={autogen}>
         <label for="auto">Auto Shift</label>
