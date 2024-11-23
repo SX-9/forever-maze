@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { directions, Maze, symbols } from "$lib";
-    import type { Direction } from "$lib";
 
     let w = $state(10), h = $state(10);
     // svelte-ignore state_referenced_locally
@@ -30,7 +29,7 @@
             const { width, height, speed } = JSON.parse(settings);
             w = width; h = height;
             maze = new Maze(width, height);
-            if (savedMaze) maze.grid = JSON.parse(savedMaze);
+            if (savedMaze) maze.grid = JSON.parse(savedMaze).map((row: number[]) => row.map((node: number) => ({direction:node})));
             grid = maze.getWalls();
             setInterval(() => {
                 if (autogen) maze.originShift();
@@ -46,7 +45,7 @@
 
         maze.onGridUpdate(() => {
             grid = maze.getWalls();
-            localStorage.setItem('maze', JSON.stringify(grid));
+            localStorage.setItem('maze', JSON.stringify(maze.grid.map((row) => row.map((node) => node.direction))));
         });
     });
 
@@ -64,8 +63,8 @@
     });
 </script>
 
-<div class="w-full h-full flex flex-col gap-2 justify-center items-center shadow-inner data-[]:shadow-red-500">
-    <div class="flex flex-col">
+<div class="w-min h-full max-w-min max-h-full overflow-auto p-4 mx-auto flex flex-col justify-center items-center">
+    <div class="">
         {#each grid as row}
             <div class="flex w-full justify-evenly">
                 {#each row as node}
