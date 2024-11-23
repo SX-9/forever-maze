@@ -1,8 +1,9 @@
 <script lang="ts">
     import MainMenu from '$lib/MainMenu.svelte';
+	import { dev } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import '../app.css';
 
 	let { children } = $props();
@@ -22,9 +23,11 @@
 	});
 </script>
 
-<div class="sm:hidden flex justify-center items-center h-full w-full text-center">
-	<h1>Please use a bigger screen</h1>
-</div>
+{#if !dev}
+	<div class="sm:hidden flex justify-center items-center h-full w-full text-center">
+		<h1>Please use a bigger screen</h1>
+	</div>
+{/if}
 
 <MainMenu bind:showMenu={showMenu} {start} {stop}/>
 {@render children()}
