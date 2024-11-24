@@ -21,7 +21,9 @@
 	onMount(() => {
 		if ($page.url.pathname === '/') showMenu = true;
 
-		window.onkeydown = (e) => showMenu = e.key === 'Escape' ? !showMenu : showMenu;
+		window.onkeydown = (e) => {
+			showMenu = e.key === 'Escape' ? !showMenu : showMenu
+		};
 	});
 </script>
 

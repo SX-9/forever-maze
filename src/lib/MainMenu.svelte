@@ -18,7 +18,7 @@
         goto('/settings');
         setTimeout(() => {
             localStorage.removeItem('maze');
-            showMenu = false;
+            location.reload();
         }, 1000);
     }
 
@@ -47,7 +47,8 @@
             <p class="text-yellow-300 text-lg">Beta Testing</p>
         </div>
         <div class="w-64">
-            <button onclick={start} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-gray-400 hover-focus:bg-gray-100 text-gray-950">Play</button>
+            <!-- svelte-ignore a11y_autofocus -->
+            <button onclick={start} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-gray-400 hover-focus:bg-gray-100 text-gray-950" autofocus>Play</button>
             <button onclick={settings} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out">Settings</button>
             <button onclick={reset} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-red-600 hover-focus:bg-red-500 text-red-950">Reset</button>
         </div>

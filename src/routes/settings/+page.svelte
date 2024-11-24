@@ -7,6 +7,7 @@
         width: 40,
         height: 15,
         speed: 10,
+        slow: false,
         showMarkers: false,
         allowControl: false,
     });
@@ -28,23 +29,23 @@
 </script>
 
 <div class="p-8 h-full flex justify-between items-center">
-    <form onsubmit={updateSettings} class="h-full flex flex-col justify-between" transition:fly={{ x: -100, duration: 150 }}>
+    <form onsubmit={updateSettings} class="h-full flex flex-col justify-between" transition:fly={{ x: -100, duration: 250 }}>
         <div>
             <span class="text-sm">made by <a href="//satr14.my.id" class="underline">satr14</a></span>
             <h1 class="text-4xl">Settings</h1>
             <p>{statusText}</p>
         </div>
-        <div class="w-48">
+        <div class="w-72">
             <div class="flex justify-between items-center w-full">
-                <label for="speed">Speed:</label>
+                <label for="speed">Generation speed:</label>
                 <input class="w-24" type="number" min="0" placeholder="speed" bind:value={settings.speed}>
             </div>
             <div class="flex justify-between items-center w-full">
-                <label for="width">Width:</label>
+                <label for="width">Maze width:</label>
                 <input class="w-24" type="number" min="0" placeholder="width" bind:value={settings.width}>
             </div>
             <div class="flex justify-between items-center w-full">
-                <label for="height">Height:</label>
+                <label for="height">Maze height:</label>
                 <input class="w-24" type="number" min="0" placeholder="height" bind:value={settings.height}>
             </div>
             <div class="flex justify-between items-center w-full">
@@ -55,12 +56,16 @@
                 <label for="allowControl">Allow control:</label>
                 <input type="checkbox" id="allowControl" bind:checked={settings.allowControl}>
             </div>
+            <div class="flex justify-between items-center w-full">
+                <label for="slow">Slow animation:</label>
+                <input type="checkbox" id="slow" bind:checked={settings.slow}>
+            </div>
         </div>
         <div class="flex gap-4 items-center">
             <button type="submit" class="w-min whitespace-nowrap">Save</button>
         </div>
     </form>
-    <dir transition:fly={{ x: 100, duration: 150 }}>
+    <dir transition:fly={{ x: 100, duration: 250 }}>
         <p class="text-right">
             Pause/Resume the game - <kbd>Esc</kbd><br>
             Move the player - <kbd>WASD</kbd><br>
