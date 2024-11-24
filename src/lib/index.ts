@@ -18,8 +18,12 @@
     6. repeat steps 2-5 for as long as you want
 */
 
+export type Payload = {
+    type: 'player' | 'enemy' | 'item', 
+    data: any,
+};
 export type Direction = 0 | 1 | 2 | 3 | 4;
-export const symbols = ['--', '>>', 'VV', '<<', '^^'];
+export const symbols = ['+', '>', 'V', '<', '^'];
 export const directions: Record<'origin' | 'up' | 'down' | 'left' | 'right', Direction> = {
     origin: 0,
     right: 1,
@@ -27,6 +31,7 @@ export const directions: Record<'origin' | 'up' | 'down' | 'left' | 'right', Dir
     left: 3,
     up: 4,
 };
+
 export class Maze<Type> {
     grid: {
         direction: Direction,
@@ -101,6 +106,7 @@ export class Maze<Type> {
 
     originShift(direction?: Direction) {
         return new Promise<void>(async (resolve, reject) => {
+            // debugger
             let origin = this.getOriginCoords();
 
             if (direction) {
@@ -138,5 +144,37 @@ export class Maze<Type> {
 
     onGridUpdate(hook: (grid: this) => void) {
         this.updateHooks.push(hook);
+    }
+}
+
+export class Game {
+    maze: Maze<Payload>;
+    player: {
+        x: number,
+        y: number,
+    };
+
+    constructor(maze: Maze<Payload>) {
+        this.maze = maze;
+        this.player = {
+            x: maze.width - 1,
+            y: maze.height - 1,
+        }
+    }
+
+    movePlayer(direction: Direction) {
+        return new Promise<void>(async (resolve, reject) => {
+            let [x, y] = [this.player.x, this.player.y];
+            if (direction === directions.right && x + 1 < this.maze.width) x++;
+            else if (direction === directions.left && x - 1 >= 0) x--;
+            else if (direction === directions.down && y + 1 < this.maze.height) y++;
+            else if (direction === directions.up && y - 1 >= 0) y--;
+            else return reject('out of bound');
+
+            if (this.maze.grid[y][x].direction === directions.origin) {
+                this.player = { x, y };
+                resolve();
+            } else reject('invalid move');
+        });
     }
 }

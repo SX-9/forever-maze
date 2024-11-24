@@ -15,8 +15,11 @@
 
     function reset() {
         if (!confirm('Are you sure?')) return;
-        localStorage.clear();
         goto('/settings');
+        setTimeout(() => {
+            localStorage.removeItem('maze');
+            showMenu = false;
+        }, 1000);
     }
 
     function settings() {
@@ -44,11 +47,11 @@
             <p class="text-yellow-300 text-lg">Beta Testing</p>
         </div>
         <div class="w-64">
-            <button onclick={start} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-gray-400 hover-focus:bg-gray-100 text-gray-900">Play</button>
-            <button onclick={reset} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out">Reset</button>
+            <button onclick={start} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-gray-400 hover-focus:bg-gray-100 text-gray-950">Play</button>
             <button onclick={settings} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out">Settings</button>
+            <button onclick={reset} class="w-full my-2 hover-focus:translate-x-10 transition-all duration-150 ease-out bg-red-600 hover-focus:bg-red-500 text-red-950">Reset</button>
         </div>
     </div>
 {:else}
-    <button onclick={stop} class="fixed top-4 right-4 z-50">Pause</button>
+    <button onclick={stop} class="fixed top-4 right-4 z-50" transition:slide={{ axis: 'y', duration: 100 }}>Pause</button>
 {/if}

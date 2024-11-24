@@ -4,7 +4,8 @@
 
 * { @apply [color-scheme:dark] }
 html { @apply font-mono max-h-full h-full; }
-body { @apply h-full overflow-auto bg-black text-white object-cover; }
+body { @apply h-full overflow-hidden bg-black text-white object-cover; }
+kbd { @apply bg-gray-800 text-gray-400 px-2 py-0.5 rounded-sm; }
 
 h1 { @apply text-4xl; }
 button { @apply hover-focus:bg-gray-800 bg-gray-900 text-white shadow-lg px-4 py-2 font-bold after:content-['_='] before:content-['=_'] hover-focus:after:content-['_<'] hover-focus:before:content-['>_']; }
