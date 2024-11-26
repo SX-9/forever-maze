@@ -10,6 +10,7 @@
     let maze = new Maze<Payload>(w, h);
     let game = new Game(maze);
     
+    let buttonControls = $state(false);
     let allowControl = $state(false);
     let autosave = $state(true);
     let slow = $state(false);
@@ -18,7 +19,9 @@
     let showMarkers = $state(false);
     let error = $state('');
     let dir: Direction = $state(0);
-    let gameState = $state({});
+    let gameState = $state({
+        scores: [],
+    });
     let grid = $state(maze.getWalls());
     let isArrow = $state(true);
     let playerX = $state(game.player.x);
@@ -49,10 +52,12 @@
                 speed: spSetting,
                 showMarkers: smSetting,
                 allowControl: acSetting,
+                buttonControls: bcSetting,
                 slow: slSetting,
             } = JSON.parse(settings);
             showMarkers = smSetting;
             allowControl = acSetting;
+            buttonControls = bcSetting;
             speed = spSetting;
             slow = slSetting;
             w = width; h = height;
@@ -142,3 +147,14 @@
     bind:busy={busy}
     {slow} {showMarkers}
 />
+
+{#if buttonControls}
+    <div class="fixed bottom-8 left-8 opacity-50 grid grid-cols-3 gap-2">
+        <div></div>
+        <button class="no-ba" onclick={() => game.movePlayer(directions.up).catch(errorCatch)}>^</button>
+        <div></div>
+        <button class="no-ba" onclick={() => game.movePlayer(directions.left).catch(errorCatch)}>{'<'}</button>
+        <button class="no-ba" onclick={() => game.movePlayer(directions.down).catch(errorCatch)}>v</button>
+        <button class="no-ba" onclick={() => game.movePlayer(directions.right).catch(errorCatch)}>{'>'}</button>
+    </div>
+{/if}

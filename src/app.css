@@ -8,7 +8,8 @@ body { @apply h-full overflow-hidden bg-black text-white object-cover; }
 kbd { @apply bg-gray-800 text-gray-400 px-2 py-0.5 rounded-sm; }
 
 h1 { @apply text-4xl; }
-button { @apply hover-focus:bg-gray-800 bg-gray-900 text-white shadow-lg px-4 py-2 font-bold after:content-['_='] before:content-['=_'] hover-focus:after:content-['_<'] hover-focus:before:content-['>_']; }
+button { @apply hover-focus:bg-gray-800 bg-gray-900 text-white shadow-lg px-4 py-2 font-bold; }
+button:not(.no-ba) { @apply after:content-['_='] before:content-['=_'] hover-focus:after:content-['_<'] hover-focus:before:content-['>_']; }
 input { @apply bg-gray-900 my-1 text-white px-4 py-2; }
 
 progress { @apply [&::-webkit-progress-bar]:bg-gray-700 [&::-webkit-progress-value]:bg-blue-400 [&::-moz-progress-bar]:bg-blue-400; }

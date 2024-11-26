@@ -10,6 +10,7 @@
         slow: false,
         showMarkers: false,
         allowControl: false,
+        buttonControls: false,
     });
 
     function updateSettings(e: Event) {
@@ -60,6 +61,10 @@
                 <label for="slow">Slow animation:</label>
                 <input type="checkbox" id="slow" bind:checked={settings.slow}>
             </div>
+            <div class="flex justify-between items-center w-full">
+                <label for="buttonControls">Button controls:</label>
+                <input type="checkbox" id="buttonControls" bind:checked={settings.buttonControls}>
+            </div>
         </div>
         <div class="flex gap-4 items-center">
             <button type="submit" class="w-min whitespace-nowrap">Save</button>
@@ -75,6 +80,7 @@
             <br>
             <u>Show markers</u> will display the direction of each node in the maze.<br>
             <u>Slow animation</u> will slow down the animation of the maze generation.<br>
+            <u>Button controls</u> will display the game controls on the screen.<br>
             <br>
             These controls the maze generation if <u>Allow generation control</u> is enabled:<br>
             Shift origin to specified direction - <kbd>ArrowKeys</kbd><br>
