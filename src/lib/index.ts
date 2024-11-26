@@ -50,10 +50,10 @@ export class Maze<Type> {
         for (let i = 0; i < this.height; i++) {
             this.grid.push([]);
             for (let j = 0; j < this.width; j++) {
-                if (j === this.width - 1) {
-                    if (i === this.height - 1) this.grid[i].push({ direction: 0 });
-                    else this.grid[i].push({ direction: 2 });
-                } else this.grid[i].push({ direction: 1 });
+                if (j === 0) {
+                    if (i === 0) this.grid[i].push({ direction: directions.origin });
+                    else this.grid[i].push({ direction: directions.up });
+                } else this.grid[i].push({ direction: directions.left });
             }
         }
     }
