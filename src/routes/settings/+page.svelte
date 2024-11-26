@@ -38,10 +38,6 @@
         </div>
         <div class="w-72">
             <div class="flex justify-between items-center w-full">
-                <label for="speed">Generation speed:</label>
-                <input class="w-24" type="number" min="0" max="1000" placeholder="speed" bind:value={settings.speed}>
-            </div>
-            <div class="flex justify-between items-center w-full">
                 <label for="width">Maze width:</label>
                 <input class="w-24" type="number" min="0" placeholder="width" bind:value={settings.width}>
             </div>
@@ -50,12 +46,12 @@
                 <input class="w-24" type="number" min="0" max="15" placeholder="height" bind:value={settings.height}>
             </div>
             <div class="flex justify-between items-center w-full">
-                <label for="showMarkers">Show markers:</label>
-                <input type="checkbox" id="showMarkers" bind:checked={settings.showMarkers}>
+                <label for="speed">Generation speed:</label>
+                <input class="w-24" type="number" min="0" max="1000" placeholder="speed" bind:value={settings.speed}>
             </div>
             <div class="flex justify-between items-center w-full">
-                <label for="allowControl">Allow generation control:</label>
-                <input type="checkbox" id="allowControl" bind:checked={settings.allowControl}>
+                <label for="showMarkers">Show markers:</label>
+                <input type="checkbox" id="showMarkers" bind:checked={settings.showMarkers}>
             </div>
             <div class="flex justify-between items-center w-full">
                 <label for="slow">Slow animation:</label>
@@ -65,6 +61,10 @@
                 <label for="buttonControls">Button controls:</label>
                 <input type="checkbox" id="buttonControls" bind:checked={settings.buttonControls}>
             </div>
+            <div class="flex justify-between items-center w-full">
+                <label for="allowControl">Allow generation control:</label>
+                <input type="checkbox" id="allowControl" bind:checked={settings.allowControl}>
+            </div>
         </div>
         <div class="flex gap-4 items-center">
             <button type="submit" class="w-min whitespace-nowrap">Save</button>
@@ -73,9 +73,9 @@
     <dir transition:fly={{ x: 100, duration: 250 }} class=" max-h-full overflow-y-auto">
         <p class="text-right">
             Set the maze size and generation speed to your liking before playing.<br>
-            Your goal is to get the points as fast as possible while the maze is generating.<br>
+            <i>Your goal is to get the points as fast as possible while the maze is generating.</i><br>
             <br>
-            Pause/Resume the game - <kbd>Esc</kbd><br>
+            Pause/Resume the game - <kbd>Escape</kbd><br>
             Move the player - <kbd>WASD</kbd><br>
             <br>
             <u>Show markers</u> will display the direction of each node in the maze.<br>

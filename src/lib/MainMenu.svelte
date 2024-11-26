@@ -44,7 +44,7 @@
     }}>
         <div>
             <h1 class="italic text-7xl">ForeverMaze</h1>
-            <p class="text-yellow-300 text-lg">Beta Testing</p>
+            <p class="text-yellow-300 text-lg">Do It Live.</p>
         </div>
         <div class="w-64">
             <!-- svelte-ignore a11y_autofocus -->

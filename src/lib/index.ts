@@ -18,6 +18,9 @@
     6. repeat steps 2-5 for as long as you want
 */
 
+import { writable } from "svelte/store";
+export const paused = writable(false);
+
 export type Payload = {
     type: 'player' | 'enemy' | 'item', 
     data: any,

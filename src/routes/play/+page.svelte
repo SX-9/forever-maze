@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { directions, Game, Maze, type Payload, type Direction } from "$lib";
+    import { directions, paused, Game, Maze, type Payload, type Direction } from "$lib";
     import { onDestroy, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import { goto } from "$app/navigation";
@@ -14,19 +14,18 @@
     let allowControl = $state(false);
     let autosave = $state(true);
     let slow = $state(false);
-    let busy = $state(false);
+    let busy = $state(true);
     let autogen = $state(true);
     let showMarkers = $state(false);
     let error = $state('');
     let dir: Direction = $state(0);
-    let gameState = $state({
-        scores: [],
-    });
     let grid = $state(maze.getWalls());
     let isArrow = $state(true);
-    let playerX = $state(game.player.x);
-    let playerY = $state(game.player.y);
-    
+    let gameState = $state({
+        // svelte-ignore state_referenced_locally
+        player: game.player,
+    });
+
     let autogenInterval: NodeJS.Timeout | null = null;
     let keyInterval: NodeJS.Timeout | null = null;
     let playerInterval: NodeJS.Timeout | null = null;
@@ -40,8 +39,11 @@
 
     onMount(() => {
         const savedState = localStorage.getItem('gameState');
-        if (savedState) gameState = JSON.parse(savedState);
-
+        if (savedState) {
+            gameState = JSON.parse(savedState);
+            game.player = gameState.player;
+        }
+        
         const settings = localStorage.getItem('settings');
         const savedMaze = localStorage.getItem('maze');
         let speed = 10;
@@ -62,26 +64,24 @@
             slow = slSetting;
             w = width; h = height;
             maze = new Maze(width, height);
-            if (savedMaze) maze.grid = JSON.parse(savedMaze).map((row: number[]) => row.map((node: number) => ({direction:node})));
-            else {
+            if (savedMaze) {
+                maze.grid = JSON.parse(savedMaze).map((row: number[]) => row.map((node: number) => ({direction:node})));
+                busy = false;
+            } else {
                 let time = maze.width * maze.height * speed * 10;
-                busy = true;
                 autosave = false;
                 error = `(wait ${time/1000} seconds) maze is generating...`;
                 setTimeout(() => {
                     busy = false;
                     autosave = true;
-                    error = '.';
+                    error = '';
                 }, time);
             }
             grid = maze.getWalls();
-            autogenInterval = setInterval(() => {
-                if (autogen) maze.originShift().catch(errorCatch);
-            }, speed);
         } else return goto('/settings');
 
         window.addEventListener('keydown', (e) => {
-            if (busy) return;
+            if (busy || $paused) return;
 
             if (allowControl && e.key === ' ') autogen = !autogen;
             if (allowControl && e.key === 'Enter') maze.originShift().catch(errorCatch);
@@ -107,12 +107,16 @@
             dir = 0;
         });
 
+        autogenInterval = setInterval(() => {
+            if (autogen && !$paused) maze.originShift().catch(errorCatch);
+        }, speed);
+
         keyInterval = setInterval(() => {
-            if (dir && isArrow) maze.originShift(dir || 0).catch(errorCatch);
+            if (!$paused && dir && isArrow) maze.originShift(dir || 0).catch(errorCatch);
         }, speed*10);
         
         playerInterval = setInterval(() => {
-            if (dir && !isArrow) game.movePlayer(dir).catch(errorCatch);
+            if (!$paused && dir && !isArrow) game.movePlayer(dir).catch(errorCatch);
         }, 100);
 
         maze.onGridUpdate(() => {
@@ -122,8 +126,7 @@
         });
 
         game.onGameUpdate((e) => {
-            playerX = e.player.x;
-            playerY = e.player.y;
+            gameState.player = e.player;
         });
     });
 
@@ -144,8 +147,7 @@
 
 <MazeUi
     bind:grid={grid}
-    bind:playerX={playerX}
-    bind:playerY={playerY}
+    bind:player={gameState.player}
     bind:busy={busy}
     {slow} {showMarkers}
 />
@@ -153,10 +155,10 @@
 {#if buttonControls}
     <div class="fixed bottom-8 left-8 opacity-75 grid grid-cols-3 gap-2 z-20">
         <div></div>
-        <button class="no-ba" onclick={() => game.movePlayer(directions.up).catch(errorCatch)}>^</button>
+        <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.up).catch(errorCatch)}>^</button>
         <div></div>
-        <button class="no-ba" onclick={() => game.movePlayer(directions.left).catch(errorCatch)}>{'<'}</button>
-        <button class="no-ba" onclick={() => game.movePlayer(directions.down).catch(errorCatch)}>v</button>
-        <button class="no-ba" onclick={() => game.movePlayer(directions.right).catch(errorCatch)}>{'>'}</button>
+        <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.left).catch(errorCatch)}>{'<'}</button>
+        <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.down).catch(errorCatch)}>v</button>
+        <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.right).catch(errorCatch)}>{'>'}</button>
     </div>
 {/if}

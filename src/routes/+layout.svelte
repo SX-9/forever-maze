@@ -4,26 +4,31 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { paused } from '$lib';
 	import '../app.css';
 
 	let { children } = $props();
-	let showMenu = $state(false);
 
 	function start() {
 		if ($page.url.pathname !== '/play') goto('/play');
-		showMenu = false;
+		$paused = false;
 	}
 
 	function stop() {
-		showMenu = true;
+		$paused = true;
 	}
 
 	onMount(() => {
-		if ($page.url.pathname === '/') showMenu = true;
+		if ($page.url.pathname === '/') $paused = true;
 
 		window.onkeydown = (e) => {
-			showMenu = e.key === 'Escape' ? !showMenu : showMenu
+			$paused = e.key === 'Escape' ? !$paused : $paused
 		};
+	});
+
+	$effect(() => {
+		if ($paused) $paused = true;
+		else $paused = false;
 	});
 </script>
 
@@ -33,5 +38,5 @@
 	</div>
 {/if}
 
-<MainMenu bind:showMenu={showMenu} {start} {stop}/>
+<MainMenu bind:showMenu={$paused} {start} {stop}/>
 {@render children()}

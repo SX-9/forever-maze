@@ -5,8 +5,7 @@
     let maze = new Maze(2, 2);
     let {
         grid = $bindable(maze.getWalls()),
-        playerX = $bindable(0),
-        playerY = $bindable(0),
+        player = $bindable({ x: 0, y: 0 }),
         busy = $bindable(false),
         slow = false, showMarkers = false,
     } = $props();
@@ -30,7 +29,7 @@
                                 data-[wall-right=true]:border-r-white"
                             data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
                             data-direction={node.direction} data-slow={slow}>
-                            {#if playerX === x && playerY === y}
+                            {#if player.x === x && player.y === y}
                                 <span class="text-green-400">#</span>
                             {:else}
                                 {#if showMarkers}
