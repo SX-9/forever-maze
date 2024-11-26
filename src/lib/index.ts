@@ -21,10 +21,6 @@
 import { writable } from "svelte/store";
 export const paused = writable(false);
 
-export type Payload = {
-    type: 'player' | 'enemy' | 'item', 
-    data: any,
-};
 export type Direction = 0 | 1 | 2 | 3 | 4;
 export const symbols = ['+', '>', 'v', '<', '^'];
 export const directions: Record<'origin' | 'up' | 'down' | 'left' | 'right', Direction> = {
@@ -151,19 +147,38 @@ export class Maze<Type> {
 }
 
 export class Game {
-    maze: Maze<Payload>;
-    player: {
-        x: number,
-        y: number,
+    maze: Maze<any>;
+    player = {
+        x: 0,
+        y: 0,
     };
+    mark = {
+        x: 0,
+        y: 0,
+    };
+    records: {
+        diff: number,
+        time: number,
+        invalid?: boolean,
+    }[] = [];
+    lastTime = Date.now();
+    startTime = Date.now();
+    invalid = false;
     updateHooks: ((game: this) => void)[] = [];
 
-    constructor(maze: Maze<Payload>) {
+    constructor(maze: Maze<any>) {
         this.maze = maze;
-        this.player = {
-            x: 0,
-            y: 0,
-        }
+        this.player = { x: 0, y: 0 };
+        this.records = [];
+        this.placeMark();
+
+    }
+
+    placeMark() {
+        let x = Math.floor(Math.random() * this.maze.width);
+        let y = Math.floor(Math.random() * this.maze.height);
+        this.mark = { x, y };
+        this.runUpdateHooks();
     }
 
     movePlayer(direction: Direction) {
@@ -175,6 +190,18 @@ export class Game {
             else if (direction === directions.down && walls[1] === false) this.player.y++;
             else if (direction === directions.up && walls[0] === false) this.player.y--;
             else return reject(`wall collision on the ${symbols[direction]} side`);
+
+            if (this.player.x === this.mark.x && this.player.y === this.mark.y) {
+                let current = Date.now();
+                this.records.push({
+                    diff: Math.round(((current - this.lastTime) / 1000) * 100) / 100,
+                    time: Math.round(((current - this.startTime) / 1000) * 100) / 100,
+                    invalid: this.invalid,
+                });
+
+                this.lastTime = current;
+                this.placeMark();
+            }
 
             this.runUpdateHooks();
             resolve();

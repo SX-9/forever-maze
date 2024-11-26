@@ -5,6 +5,7 @@
     let maze = new Maze(2, 2);
     let {
         grid = $bindable(maze.getWalls()),
+        mark = $bindable({ x: 0, y: 0 }),
         player = $bindable({ x: 0, y: 0 }),
         busy = $bindable(false),
         slow = false, showMarkers = false,
@@ -31,24 +32,32 @@
                             data-direction={node.direction} data-slow={slow}>
                             {#if player.x === x && player.y === y}
                                 <span class="text-green-400"><b>#</b></span>
+                            {:else if mark.x === x && mark.y === y}
+                                <span class="text-yellow-400"><b>*</b></span>
                             {:else}
                                 {#if showMarkers}
                                     <span class="text-blue-400">{symbols[node.direction]}</span>
                                 {:else}
                                     {#if node.direction === 0}
                                         <span class="text-red-400">+</span>
-                                    {/if}
-                                    {#if player.x === x && player.y - 1 === y && !node.walls[1]}
-                                        <span class="text-blue-900">w</span>
-                                    {/if}
-                                    {#if player.x === x && player.y + 1 === y && !node.walls[0]}
-                                        <span class="text-blue-900">s</span>
-                                    {/if}
-                                    {#if player.x - 1 === x && player.y === y && !node.walls[3]}
-                                        <span class="text-blue-900">a</span>
-                                    {/if}
-                                    {#if player.x + 1 === x && player.y === y && !node.walls[2]}
-                                        <span class="text-blue-900">d</span>
+                                    {:else}
+                                        {#if player.x === x && player.y - 1 === y && !node.walls[1]}
+                                            <span class="text-blue-900">w</span>
+                                        {:else if player.x === x && player.y + 1 === y && !node.walls[0]}
+                                            <span class="text-blue-900">s</span>
+                                        {:else if player.x - 1 === x && player.y === y && !node.walls[3]}
+                                            <span class="text-blue-900">a</span>
+                                        {:else if player.x + 1 === x && player.y === y && !node.walls[2]}
+                                            <span class="text-blue-900">d</span>
+                                        {:else if mark.x === x && mark.y - 1 === y && !node.walls[1]}
+                                            <span class="text-blue-900">|</span>
+                                        {:else if mark.x === x && mark.y + 1 === y && !node.walls[0]}
+                                            <span class="text-blue-900">|</span>
+                                        {:else if mark.x - 1 === x && mark.y === y && !node.walls[3]}
+                                            <span class="text-blue-900">-</span>
+                                        {:else if mark.x + 1 === x && mark.y === y && !node.walls[2]}
+                                            <span class="text-blue-900">-</span>
+                                        {/if}
                                     {/if}
                                 {/if}
                             {/if}

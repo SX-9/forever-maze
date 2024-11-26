@@ -73,19 +73,19 @@
     <dir transition:fly={{ x: 100, duration: 250 }} class=" max-h-full overflow-y-auto">
         <p class="text-right">
             Set the maze size and generation speed to your liking before playing.<br>
-            <i>Your goal is to get the points as fast as possible while the maze is generating.</i><br>
+            <i><span class="text-green-400">Your</span> goal is to get to <span class="text-yellow-400">the point</span> ASAP while <span class="text-blue-400">the maze</span> keeps <span class="text-red-400">changing forever</span>.</i><br>
             <br>
-            Pause/Resume the game - <kbd>Escape</kbd><br>
-            Move the player - <kbd>WASD</kbd><br>
+            <i>Pause/Resume the game</i> - <kbd>Escape</kbd><br>
+            <i>Move the player</i> - <kbd>WASD</kbd><br>
             <br>
             <u>Show markers</u> will display the direction of each node in the maze.<br>
             <u>Slow animation</u> will slow down the animation of the maze generation.<br>
             <u>Button controls</u> will display the game controls on the screen.<br>
             <br>
             These controls the maze generation if <u>Allow generation control</u> is enabled:<br>
-            Shift origin to specified direction - <kbd>ArrowKeys</kbd><br>
-            Shift origin to random direction - <kbd>Enter</kbd><br>
-            Play/Pause Auto-Shift - <kbd>Space</kbd><br>
+            <i>Shift origin to specified direction</i> - <kbd>ArrowKeys</kbd><br>
+            <i>Shift origin to random direction</i> - <kbd>Enter</kbd><br>
+            <i>Play/Pause Auto-Shift</i> - <kbd>Space</kbd><br>
             <br>
             <span class="text-red-500">
                 Changing maze sizes on a saved game is incompatible!<br>

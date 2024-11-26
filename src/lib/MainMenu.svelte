@@ -18,6 +18,7 @@
         goto('/settings');
         setTimeout(() => {
             localStorage.removeItem('maze');
+            localStorage.removeItem('gameState');
             location.reload();
         }, 1000);
     }
@@ -38,7 +39,7 @@
 </script>
 
 {#if showMenu}
-    <div class="w-full h-full flex flex-col justify-between items-start gap-4 px-16 py-16 fixed backdrop-blur-sm z-50" transition:slide={{
+    <div class="w-full h-full flex flex-col justify-between items-start gap-4 px-16 py-16 fixed backdrop-blur-sm z-40" transition:slide={{
         duration: 100,
         axis: 'x',
     }}>
@@ -54,5 +55,5 @@
         </div>
     </div>
 {:else}
-    <button onclick={stop} class="fixed top-4 right-4 z-50 opacity-75   " transition:slide={{ axis: 'y', duration: 100 }}>Pause</button>
+    <button onclick={stop} class="fixed top-4 right-4 z-50 opacity-75" transition:slide={{ axis: 'y', duration: 100 }}>Pause</button>
 {/if}

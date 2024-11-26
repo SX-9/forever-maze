@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { directions, paused, Game, Maze, type Payload, type Direction } from "$lib";
+    import { directions, paused, Game, Maze, type Direction } from "$lib";
     import { onDestroy, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import { goto } from "$app/navigation";
@@ -7,7 +7,7 @@
 
     let w = $state(2), h = $state(2);
     // svelte-ignore state_referenced_locally
-    let maze = new Maze<Payload>(w, h);
+    let maze = new Maze(w, h);
     let game = new Game(maze);
     
     let buttonControls = $state(false);
@@ -23,7 +23,9 @@
     let isArrow = $state(true);
     let gameState = $state({
         // svelte-ignore state_referenced_locally
+        mark: game.mark,
         player: game.player,
+        records: game.records,
     });
 
     let autogenInterval: NodeJS.Timeout | null = null;
@@ -41,9 +43,11 @@
         const savedState = localStorage.getItem('gameState');
         if (savedState) {
             gameState = JSON.parse(savedState);
-            game.player = gameState.player;
+            game.mark = gameState.mark || { x: 0, y: 0 };
+            game.player = gameState.player || { x: 0, y: 0 };
+            game.records = gameState.records || [];
         }
-        
+
         const settings = localStorage.getItem('settings');
         const savedMaze = localStorage.getItem('maze');
         let speed = 10;
@@ -64,13 +68,19 @@
             slow = slSetting;
             w = width; h = height;
             maze = new Maze(width, height);
+            game.invalid = allowControl;
             if (savedMaze) {
                 maze.grid = JSON.parse(savedMaze).map((row: number[]) => row.map((node: number) => ({direction:node})));
                 busy = false;
             } else {
                 let time = maze.width * maze.height * speed * 10;
                 autosave = false;
-                error = `(wait ${time/1000} seconds) maze is generating...`;
+                error = `${allowControl ? 'WARNING: All records will be marked as invalid when maze generation control is on. ' : ''}(wait ${time/1000}s) generating initial maze...`;
+
+                game.mark = { x: Math.floor(Math.random() * w), y: Math.floor(Math.random() * h) };
+                game.player = { x: Math.floor(Math.random() * w), y: Math.floor(Math.random() * h) };
+                gameState.mark = game.mark; gameState.player = game.player; gameState.records = [];
+
                 setTimeout(() => {
                     busy = false;
                     autosave = true;
@@ -126,7 +136,9 @@
         });
 
         game.onGameUpdate((e) => {
+            gameState.mark = e.mark;
             gameState.player = e.player;
+            gameState.records = e.records;
         });
     });
 
@@ -146,9 +158,9 @@
 </div>
 
 <MazeUi
-    bind:grid={grid}
+    bind:grid={grid} bind:busy={busy}
     bind:player={gameState.player}
-    bind:busy={busy}
+    bind:mark={gameState.mark}
     {slow} {showMarkers}
 />
 
@@ -160,5 +172,25 @@
         <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.left).catch(errorCatch)}>{'<'}</button>
         <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.down).catch(errorCatch)}>v</button>
         <button class="no-ba" disabled={busy} onclick={() => game.movePlayer(directions.right).catch(errorCatch)}>{'>'}</button>
+    </div>
+{/if}
+
+{#if $paused}
+    <div transition:fly={{ x: 100, duration: 150 }} class="fixed top-0 right-0 p-8 z-50 h-full max-h-full overflow-y-auto flex flex-col items-end text-right">
+        {#if allowControl}
+            <span class="text-red-400">
+                Maze generation controls is on,<br>
+                records will be marked as invalid.<br>
+            </span>
+        {/if}
+        <ol>
+            {#each gameState.records as record, i}
+                <li class="px-2 data-[invalid=true]:opacity-50 data-[invalid=true]:line-through" data-invalid={record.invalid}>
+                    <span class="text-blue-300">{record.time}s</span>
+                    <span class="text-green-300">{record.diff}s</span>
+                    <span class="text-yellow-300">#{i + 1}</span>
+                </li>
+            {/each}
+        </ol>
     </div>
 {/if}
