@@ -70,9 +70,9 @@
             <button type="submit" class="w-min whitespace-nowrap">Save</button>
         </div>
     </form>
-    <dir transition:fly={{ x: 100, duration: 250 }}>
+    <dir transition:fly={{ x: 100, duration: 250 }} class=" max-h-full overflow-y-auto">
         <p class="text-right">
-            The goal is to reach the bottom right corner of the maze while its generating.<br>
+            Your goal is to get the points as fast as possible while the maze is generating.<br>
             Set the maze size and generation speed to your liking before playing.<br>
             <br>
             Pause/Resume the game - <kbd>Esc</kbd><br>
