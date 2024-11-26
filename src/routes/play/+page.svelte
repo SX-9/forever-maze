@@ -26,6 +26,7 @@
     let mazeEl: HTMLDivElement;
     let autogenInterval: NodeJS.Timeout | null = null;
     let keyInterval: NodeJS.Timeout | null = null;
+    let playerInterval: NodeJS.Timeout | null = null;
 
     function errorCatch(e: Error) {
         error = e.toString();
@@ -103,8 +104,11 @@
 
         keyInterval = setInterval(() => {
             if (dir && isArrow) maze.originShift(dir || 0).catch(errorCatch);
-            if (dir && !isArrow) game.movePlayer(dir).catch(errorCatch);
         }, speed*10);
+        
+        playerInterval = setInterval(() => {
+            if (dir && !isArrow) game.movePlayer(dir).catch(errorCatch);
+        }, 100);
 
         maze.onGridUpdate(() => {
             grid = maze.getWalls();
@@ -118,10 +122,10 @@
         });
     });
 
-
     onDestroy(() => {
         if (autogenInterval) clearInterval(autogenInterval);
         if (keyInterval) clearInterval(keyInterval);
+        if (playerInterval) clearInterval(playerInterval);
     });
 
     $effect(() => {
