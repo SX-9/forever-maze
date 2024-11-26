@@ -1,6 +1,6 @@
 <script lang="ts">
     import { fly } from "svelte/transition";
-    import { Maze, symbols } from "$lib";
+    import { directions, Maze, symbols } from "$lib";
 
     let maze = new Maze(2, 2);
     let {
@@ -30,10 +30,26 @@
                             data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
                             data-direction={node.direction} data-slow={slow}>
                             {#if player.x === x && player.y === y}
-                                <span class="text-green-400">#</span>
+                                <span class="text-green-400"><b>#</b></span>
                             {:else}
                                 {#if showMarkers}
-                                    <span data-direction={node.direction} class="text-blue-400 data-[direction=0]:text-red-400">{symbols[node.direction]}</span>
+                                    <span class="text-blue-400">{symbols[node.direction]}</span>
+                                {:else}
+                                    {#if node.direction === 0}
+                                        <span class="text-red-400">+</span>
+                                    {/if}
+                                    {#if player.x === x && player.y - 1 === y && !node.walls[1]}
+                                        <span class="text-blue-900">w</span>
+                                    {/if}
+                                    {#if player.x === x && player.y + 1 === y && !node.walls[0]}
+                                        <span class="text-blue-900">s</span>
+                                    {/if}
+                                    {#if player.x - 1 === x && player.y === y && !node.walls[3]}
+                                        <span class="text-blue-900">a</span>
+                                    {/if}
+                                    {#if player.x + 1 === x && player.y === y && !node.walls[2]}
+                                        <span class="text-blue-900">d</span>
+                                    {/if}
                                 {/if}
                             {/if}
                         </div>

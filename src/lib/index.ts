@@ -174,7 +174,7 @@ export class Game {
             else if (direction === directions.left && walls[2] === false) this.player.x--;
             else if (direction === directions.down && walls[1] === false) this.player.y++;
             else if (direction === directions.up && walls[0] === false) this.player.y--;
-            else return reject('wall collision');
+            else return reject(`wall collision on the ${symbols[direction]} side`);
 
             this.runUpdateHooks();
             resolve();
