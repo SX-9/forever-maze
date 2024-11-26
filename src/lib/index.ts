@@ -65,7 +65,7 @@ export class Maze<Type> {
             ...node,
             walls: [
                 (y === 0 || (this.grid[y - 1][x]?.direction !== directions.down && this.grid[y][x].direction !== directions.up)),
-                (y === this.height - 1 || (this.grid[y + 1][x]?.direction !== directions.up && this.grid[y][x].direction !== directions.down)),
+                (y === this.height - 1 || (this.grid[y + 1][x]?.direction !== directions.up && this.grid[y][x].direction !== directions.down)), 
                 (x === 0 || (this.grid[y][x - 1]?.direction !== directions.right && this.grid[y][x].direction !== directions.left)),
                 (x === this.width - 1 || (this.grid[y][x + 1]?.direction !== directions.left && this.grid[y][x].direction !== directions.right)),
             ],
@@ -153,28 +153,36 @@ export class Game {
         x: number,
         y: number,
     };
+    updateHooks: ((game: this) => void)[] = [];
 
     constructor(maze: Maze<Payload>) {
         this.maze = maze;
         this.player = {
-            x: maze.width - 1,
-            y: maze.height - 1,
+            x: 0,
+            y: 0,
         }
     }
 
     movePlayer(direction: Direction) {
         return new Promise<void>(async (resolve, reject) => {
-            let [x, y] = [this.player.x, this.player.y];
-            if (direction === directions.right && x + 1 < this.maze.width) x++;
-            else if (direction === directions.left && x - 1 >= 0) x--;
-            else if (direction === directions.down && y + 1 < this.maze.height) y++;
-            else if (direction === directions.up && y - 1 >= 0) y--;
-            else return reject('out of bound');
+            let walls = this.maze.getWalls()[this.player.y][this.player.x].walls;
 
-            if (this.maze.grid[y][x].direction === directions.origin) {
-                this.player = { x, y };
-                resolve();
-            } else reject('invalid move');
+            if (direction === directions.right && walls[3] === false) this.player.x++;
+            else if (direction === directions.left && walls[2] === false) this.player.x--;
+            else if (direction === directions.down && walls[1] === false) this.player.y++;
+            else if (direction === directions.up && walls[0] === false) this.player.y--;
+            else return reject('wall collision');
+
+            this.runUpdateHooks();
+            resolve();
         });
+    }
+
+    runUpdateHooks() {
+        this.updateHooks.forEach(hook => hook(this));
+    }
+
+    onGameUpdate(hook: (game: this) => void) {
+        this.updateHooks.push(hook);
     }
 }

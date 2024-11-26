@@ -1,6 +1,6 @@
 <script lang="ts">
+    import { directions, Game, Maze, symbols, type Payload, type Direction } from "$lib";
     import { onDestroy, onMount } from "svelte";
-    import { directions, Game, Maze, symbols, type Payload } from "$lib";
     import { fly } from "svelte/transition";
     import { goto } from "$app/navigation";
 
@@ -9,18 +9,23 @@
     let maze = new Maze<Payload>(w, h);
     let game = new Game(maze);
     
-    let mazeEl: HTMLDivElement;
     let allowControl = $state(false);
     let autosave = $state(true);
-
     let slow = $state(false);
     let busy = $state(false);
-    let grid = $state(maze.getWalls());
     let autogen = $state(true);
-    let error = $state('.');
-    let gameState = $state({});
     let showMarkers = $state(false);
+    let error = $state('.');
+    let dir: Direction = $state(0);
+    let gameState = $state({});
+    let grid = $state(maze.getWalls());
+    let isArrow = $state(true);
+    let playerX = $state(game.player.x);
+    let playerY = $state(game.player.y);
+    
+    let mazeEl: HTMLDivElement;
     let autogenInterval: NodeJS.Timeout | null = null;
+    let keyInterval: NodeJS.Timeout | null = null;
 
     function errorCatch(e: Error) {
         error = e.toString();
@@ -35,15 +40,19 @@
 
         const settings = localStorage.getItem('settings');
         const savedMaze = localStorage.getItem('maze');
+        let speed = 10;
+
         if (settings) {
             const {
-                width, height, speed,
+                width, height,
+                speed: spSetting,
                 showMarkers: smSetting,
                 allowControl: acSetting,
                 slow: slSetting,
             } = JSON.parse(settings);
             showMarkers = smSetting;
             allowControl = acSetting;
+            speed = spSetting;
             slow = slSetting;
             w = width; h = height;
             maze = new Maze(width, height);
@@ -70,22 +79,49 @@
 
             if (allowControl && e.key === ' ') autogen = !autogen;
             if (allowControl && e.key === 'Enter') maze.originShift().catch(errorCatch);
-            
-            if (allowControl && e.key === 'ArrowUp') maze.originShift(directions.up).catch(errorCatch);
-            if (allowControl && e.key === 'ArrowDown') maze.originShift(directions.down).catch(errorCatch);
-            if (allowControl && e.key === 'ArrowLeft') maze.originShift(directions.left).catch(errorCatch);
-            if (allowControl && e.key === 'ArrowRight') maze.originShift(directions.right).catch(errorCatch);
+
+            if (e.key.startsWith('Arrow')) {
+                dir = {
+                    ArrowUp: directions.up,
+                    ArrowDown: directions.down,
+                    ArrowLeft: directions.left,
+                    ArrowRight: directions.right,
+                }[e.key] || 0;
+                isArrow = true;
+            } else {
+                isArrow = false;
+                if (e.key === 'w') dir = directions.up;
+                if (e.key === 'a') dir = directions.left;
+                if (e.key === 's') dir = directions.down;
+                if (e.key === 'd') dir = directions.right;
+            }
         });
+
+        window.addEventListener('keyup', () => {
+            dir = 0;
+        });
+
+        keyInterval = setInterval(() => {
+            if (dir && isArrow) maze.originShift(dir || 0).catch(errorCatch);
+            if (dir && !isArrow) game.movePlayer(dir).catch(errorCatch);
+        }, speed*10);
 
         maze.onGridUpdate(() => {
             grid = maze.getWalls();
+            game.maze = maze;
             if (autosave) localStorage.setItem('maze', JSON.stringify(maze.grid.map((row) => row.map((node) => node.direction))));
+        });
+
+        game.onGameUpdate((e) => {
+            playerX = e.player.x;
+            playerY = e.player.y;
         });
     });
 
 
     onDestroy(() => {
         if (autogenInterval) clearInterval(autogenInterval);
+        if (keyInterval) clearInterval(keyInterval);
     });
 
     $effect(() => {
@@ -100,11 +136,11 @@
     class="w-min h-full max-w-full max-h-full overflow-auto p-4 mx-auto flex">
     <div class="m-auto data-[busy=true]:scale-50 transition-transform" data-busy={busy}>
         <div>
-            {#each grid as row}
+            {#each grid as row, y}
                 <div class="flex m-auto">
-                    {#each row as node}
+                    {#each row as node, x}
                         <div
-                            class="min-w-8 min-h-8 p-1 border-transparent border
+                            class="min-w-8 min-h-8 p-1 border-transparent border border-dotted
                                 flex justify-center items-center
                                 transition-colors duration-200 data-[slow=true]:duration-1000 ease-linear
                                 data-[wall-up=true]:border-t-gray-400
@@ -113,8 +149,12 @@
                                 data-[wall-right=true]:border-r-gray-400"
                             data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
                             data-direction={node.direction} data-slow={slow}>
-                            {#if showMarkers}
-                                <span data-direction={node.direction} class="text-gray-900 data-[direction=0]:text-red-700">{symbols[node.direction]}</span>
+                            {#if playerX === x && playerY === y}
+                                <span class="text-green-700">O</span>
+                            {:else}
+                                {#if showMarkers}
+                                    <span data-direction={node.direction} class="text-gray-900 data-[direction=0]:text-red-700">{symbols[node.direction]}</span>
+                                {/if}
                             {/if}
                         </div>
                     {/each}
