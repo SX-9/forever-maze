@@ -54,5 +54,5 @@
         </div>
     </div>
 {:else}
-    <button onclick={stop} class="fixed top-4 right-4 z-50" transition:slide={{ axis: 'y', duration: 100 }}>Pause</button>
+    <button onclick={stop} class="fixed top-4 right-4 z-50 opacity-75   " transition:slide={{ axis: 'y', duration: 100 }}>Pause</button>
 {/if}
