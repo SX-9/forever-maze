@@ -138,7 +138,9 @@
     });
 </script>
 
-<span class="text-red-500 fixed top-8 left-8 z-50 bg-black px-2 py-0.5" transition:fly={{ x: -100, duration: 150 }}>{error}</span>
+<div class="fixed top-0 left-0 z-20 h-full w-full flex justify-center items-center">
+    <span class="text-red-500 bg-black rounded-sm px-2 py-0.5 opacity-75" transition:fly={{ x: -100, duration: 150 }}>{error}</span>
+</div>
 
 <MazeUi
     bind:grid={grid}
@@ -149,7 +151,7 @@
 />
 
 {#if buttonControls}
-    <div class="fixed bottom-8 left-8 opacity-50 grid grid-cols-3 gap-2">
+    <div class="fixed bottom-8 left-8 opacity-75 grid grid-cols-3 gap-2 z-20">
         <div></div>
         <button class="no-ba" onclick={() => game.movePlayer(directions.up).catch(errorCatch)}>^</button>
         <div></div>
