@@ -23,7 +23,7 @@ export type Payload = {
     data: any,
 };
 export type Direction = 0 | 1 | 2 | 3 | 4;
-export const symbols = ['+', '>', 'V', '<', '^'];
+export const symbols = ['+', '>', 'v', '<', '^'];
 export const directions: Record<'origin' | 'up' | 'down' | 'left' | 'right', Direction> = {
     origin: 0,
     right: 1,
