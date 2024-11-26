@@ -4,7 +4,7 @@
 
     let statusText = $state('');
     let settings = $state({
-        width: 40,
+        width: 15,
         height: 15,
         speed: 10,
         slow: false,
