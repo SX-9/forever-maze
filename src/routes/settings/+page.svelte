@@ -38,7 +38,7 @@
         <div class="w-72">
             <div class="flex justify-between items-center w-full">
                 <label for="speed">Generation speed:</label>
-                <input class="w-24" type="number" min="0" placeholder="speed" bind:value={settings.speed}>
+                <input class="w-24" type="number" min="0" max="1000" placeholder="speed" bind:value={settings.speed}>
             </div>
             <div class="flex justify-between items-center w-full">
                 <label for="width">Maze width:</label>
@@ -46,14 +46,14 @@
             </div>
             <div class="flex justify-between items-center w-full">
                 <label for="height">Maze height:</label>
-                <input class="w-24" type="number" min="0" placeholder="height" bind:value={settings.height}>
+                <input class="w-24" type="number" min="0" max="15" placeholder="height" bind:value={settings.height}>
             </div>
             <div class="flex justify-between items-center w-full">
                 <label for="showMarkers">Show markers:</label>
                 <input type="checkbox" id="showMarkers" bind:checked={settings.showMarkers}>
             </div>
             <div class="flex justify-between items-center w-full">
-                <label for="allowControl">Allow control:</label>
+                <label for="allowControl">Allow generation control:</label>
                 <input type="checkbox" id="allowControl" bind:checked={settings.allowControl}>
             </div>
             <div class="flex justify-between items-center w-full">
@@ -67,12 +67,18 @@
     </form>
     <dir transition:fly={{ x: 100, duration: 250 }}>
         <p class="text-right">
+            The goal is to reach the bottom right corner of the maze while its generating.<br>
+            Set the maze size and generation speed to your liking before playing.<br>
+            <br>
             Pause/Resume the game - <kbd>Esc</kbd><br>
             Move the player - <kbd>WASD</kbd><br>
             <br>
-            These controls the maze generation only if <u>Allow Control</u> is enabled:<br>
-            Shift Origin to specified direction - <kbd>ArrowKeys</kbd><br>
-            Shift Origin to random direction - <kbd>Enter</kbd><br>
+            <u>Show markers</u> will display the direction of each node in the maze.<br>
+            <u>Slow animation</u> will slow down the animation of the maze generation.<br>
+            <br>
+            These controls the maze generation if <u>Allow generation control</u> is enabled:<br>
+            Shift origin to specified direction - <kbd>ArrowKeys</kbd><br>
+            Shift origin to random direction - <kbd>Enter</kbd><br>
             Play/Pause Auto-Shift - <kbd>Space</kbd><br>
             <br>
             <span class="text-red-500">
