@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { directions, Game, Maze, symbols, type Payload, type Direction } from "$lib";
+    import { directions, Game, Maze, type Payload, type Direction } from "$lib";
     import { onDestroy, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import { goto } from "$app/navigation";
+    import MazeUi from "$lib/MazeUI.svelte";
 
     let w = $state(2), h = $state(2);
     // svelte-ignore state_referenced_locally
@@ -15,7 +16,7 @@
     let busy = $state(false);
     let autogen = $state(true);
     let showMarkers = $state(false);
-    let error = $state('.');
+    let error = $state('');
     let dir: Direction = $state(0);
     let gameState = $state({});
     let grid = $state(maze.getWalls());
@@ -23,7 +24,6 @@
     let playerX = $state(game.player.x);
     let playerY = $state(game.player.y);
     
-    let mazeEl: HTMLDivElement;
     let autogenInterval: NodeJS.Timeout | null = null;
     let keyInterval: NodeJS.Timeout | null = null;
     let playerInterval: NodeJS.Timeout | null = null;
@@ -31,7 +31,7 @@
     function errorCatch(e: Error) {
         error = e.toString();
         setTimeout(() => {
-            error = '.';
+            error = '';
         }, 3000);
     }
 
@@ -135,35 +135,10 @@
 
 <span class="text-red-500 fixed top-8 left-8 z-50 bg-black px-2 py-0.5" transition:fly={{ x: -100, duration: 150 }}>{error}</span>
 
-<div
-    transition:fly={{ y: 100, duration: 150 }} bind:this={mazeEl}
-    class="w-min h-full max-w-full max-h-full overflow-auto p-4 mx-auto flex">
-    <div class="m-auto data-[busy=true]:scale-50 transition-transform" data-busy={busy}>
-        <div>
-            {#each grid as row, y}
-                <div class="flex m-auto">
-                    {#each row as node, x}
-                        <div
-                            class="min-w-8 min-h-8 p-1 border-transparent border border-dotted
-                                flex justify-center items-center
-                                transition-colors duration-200 data-[slow=true]:duration-1000 ease-linear
-                                data-[wall-up=true]:border-t-gray-400
-                                data-[wall-down=true]:border-b-gray-400
-                                data-[wall-left=true]:border-l-gray-400
-                                data-[wall-right=true]:border-r-gray-400"
-                            data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
-                            data-direction={node.direction} data-slow={slow}>
-                            {#if playerX === x && playerY === y}
-                                <span class="text-green-700">O</span>
-                            {:else}
-                                {#if showMarkers}
-                                    <span data-direction={node.direction} class="text-gray-900 data-[direction=0]:text-red-700">{symbols[node.direction]}</span>
-                                {/if}
-                            {/if}
-                        </div>
-                    {/each}
-                </div>
-            {/each}
-        </div>
-    </div>
-</div>
+<MazeUi
+    bind:grid={grid}
+    bind:playerX={playerX}
+    bind:playerY={playerY}
+    bind:busy={busy}
+    {slow} {showMarkers}
+/>
