@@ -31,7 +31,7 @@
                             data-wall-up={node.walls[0]} data-wall-down={node.walls[1]} data-wall-left={node.walls[2]} data-wall-right={node.walls[3]}
                             data-direction={node.direction} data-slow={slow}>
                             {#if playerX === x && playerY === y}
-                                <span class="text-green-400">O</span>
+                                <span class="text-green-400">#</span>
                             {:else}
                                 {#if showMarkers}
                                     <span data-direction={node.direction} class="text-blue-400 data-[direction=0]:text-red-400">{symbols[node.direction]}</span>
