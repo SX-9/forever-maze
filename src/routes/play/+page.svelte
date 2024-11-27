@@ -26,6 +26,7 @@
         mark: game.mark,
         player: game.player,
         records: game.records,
+        startTime: game.startTime,
     });
 
     let autogenInterval: NodeJS.Timeout | null = null;
@@ -45,6 +46,7 @@
             gameState = JSON.parse(savedState);
             game.mark = gameState.mark || { x: 0, y: 0 };
             game.player = gameState.player || { x: 0, y: 0 };
+            game.startTime = gameState.startTime || Date.now();
             game.records = gameState.records || [];
         }
 
@@ -139,6 +141,7 @@
             gameState.mark = e.mark;
             gameState.player = e.player;
             gameState.records = e.records;
+            gameState.startTime = e.startTime;
         });
     });
 
