@@ -8,6 +8,7 @@
 	import '../app.css';
 
 	let { children } = $props();
+	let isPlaying = false;
 
 	function start() {
 		if ($page.url.pathname !== '/play') goto('/play');
@@ -17,9 +18,28 @@
 	function stop() {
 		$paused = true;
 	}
+	
+	function playOnLoop(file: string) {
+		if (isPlaying) return;
+		else isPlaying = true;
+		const audio = new Audio(file);
+		audio.addEventListener('ended', () => {
+			audio.currentTime = 0;
+			audio.play();
+		});
+		audio.play();
+	}
 
 	onMount(() => {
 		if ($page.url.pathname === '/') $paused = true;
+		
+		const sound = localStorage.getItem('sound');
+		if (sound === null) localStorage.setItem('sound', 'true');
+		if (sound === 'true') {
+			let music = $page.url.pathname === '/play' ? '/game-music-loop.mp3' : '/menu-music-loop.mp3';
+			document.addEventListener('click', () => playOnLoop(music), { once: true });
+			document.addEventListener('keydown', () => playOnLoop(music), { once: true });
+		}
 
 		window.onkeydown = (e) => {
 			$paused = e.key === 'Escape' ? !$paused : $paused

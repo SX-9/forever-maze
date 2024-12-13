@@ -32,7 +32,6 @@
 <div class="p-8 h-full flex justify-between items-center">
     <form onsubmit={updateSettings} class="h-full flex flex-col justify-between" transition:fly={{ x: -100, duration: 250 }}>
         <div>
-            <span class="text-sm">made by <a href="//satr14.my.id" class="underline">satr14</a></span>
             <h1 class="text-4xl">Settings</h1>
             <p>{statusText}</p>
         </div>
