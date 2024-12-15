@@ -21,7 +21,7 @@
                 <div class="flex m-auto">
                     {#each row as node, x}
                         <div
-                            class="max-w-8 max-h-8 size-8 p-1 border-transparent border border-dotted
+                            class="max-w-8 max-h-8 size-8 p-1 border-transparent border border-solid
                                 flex justify-center items-center
                                 transition-colors duration-200 data-[slow=true]:duration-1000 ease-linear
                                 data-[wall-up=true]:border-t-white

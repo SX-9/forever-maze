@@ -17,6 +17,7 @@
     let busy = $state(true);
     let autogen = $state(true);
     let showMarkers = $state(false);
+    let timeDisplay = $state(0);
     let error = $state('');
     let dir: Direction = $state(0);
     let grid = $state(maze.getWalls());
@@ -26,7 +27,8 @@
         mark: game.mark,
         player: game.player,
         records: game.records,
-        startTime: game.startTime,
+        last: game.last,
+        elapsed: game.elapsed,
     });
 
     let autogenInterval: NodeJS.Timeout | null = null;
@@ -46,7 +48,8 @@
             gameState = JSON.parse(savedState);
             game.mark = gameState.mark || { x: 0, y: 0 };
             game.player = gameState.player || { x: 0, y: 0 };
-            game.startTime = gameState.startTime || Date.now();
+            game.last = gameState.last || 0;
+            game.elapsed = gameState.elapsed || 0;
             game.records = gameState.records || [];
         }
 
@@ -82,11 +85,13 @@
                 game.mark = { x: Math.floor(Math.random() * w), y: Math.floor(Math.random() * h) };
                 game.player = { x: Math.floor(Math.random() * w), y: Math.floor(Math.random() * h) };
                 gameState.mark = game.mark; gameState.player = game.player; gameState.records = [];
+                gameState.last = 0; gameState.elapsed = 0;
 
                 setTimeout(() => {
                     busy = false;
                     autosave = true;
                     error = '';
+                    game.startTimer();
                 }, time);
             }
             grid = maze.getWalls();
@@ -137,11 +142,16 @@
             if (autosave) localStorage.setItem('maze', JSON.stringify(maze.grid.map((row) => row.map((node) => node.direction))));
         });
 
+        game.onTimeTick = () => {
+            timeDisplay = game.elapsed;
+        };
+
         game.onGameUpdate((e) => {
             gameState.mark = e.mark;
             gameState.player = e.player;
             gameState.records = e.records;
-            gameState.startTime = e.startTime;
+            gameState.last = e.last;
+            gameState.elapsed = e.elapsed;
         });
     });
 
@@ -153,6 +163,11 @@
 
     $effect(() => {
         localStorage.setItem('gameState', JSON.stringify(gameState));
+    });
+
+    paused.subscribe((isPaused) => {
+        if (isPaused) game.stopTimer();
+        else if (!busy) game.startTimer();
     });
 </script>
 
@@ -166,6 +181,8 @@
     bind:mark={gameState.mark}
     {slow} {showMarkers}
 />
+
+<span class="fixed top-8 left-8 opacity-75 grid grid-cols-3 gap-2 z-20 text-white">{timeDisplay}s</span>
 
 {#if buttonControls}
     <div class="fixed bottom-8 left-8 opacity-75 grid grid-cols-3 gap-2 z-20">

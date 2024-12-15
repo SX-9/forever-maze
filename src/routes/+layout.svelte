@@ -1,14 +1,18 @@
 <script lang="ts">
+	import { goto, onNavigate } from '$app/navigation';
     import MainMenu from '$lib/MainMenu.svelte';
+	import { navigating } from '$app/stores';
 	import { dev } from '$app/environment';
-	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { paused } from '$lib';
 	import '../app.css';
+  	import { get } from 'svelte/store';
 
 	let { children } = $props();
 	let isPlaying = false;
+	let audioInstances: HTMLAudioElement[] = [];
+	let path = '';
 
 	function start() {
 		if ($page.url.pathname !== '/play') goto('/play');
@@ -21,29 +25,50 @@
 	
 	function playOnLoop(file: string) {
 		if (isPlaying) return;
-		else isPlaying = true;
 		const audio = new Audio(file);
 		audio.addEventListener('ended', () => {
 			audio.currentTime = 0;
 			audio.play();
 		});
-		audio.play();
+		audio.play().then(() => {
+			isPlaying = true;
+			audioInstances.push(audio);
+		});
+	}
+
+	function startMusic() {
+		let music = path === '/play' ? '/game-music-loop.mp3' : '/menu-music-loop.mp3';
+		playOnLoop(music);
+		document.addEventListener('click', () => playOnLoop(music), { once: true });
+		document.addEventListener('keypress', () => playOnLoop(music), { once: true });
 	}
 
 	onMount(() => {
-		if ($page.url.pathname === '/') $paused = true;
+		path = $page.url.pathname;
+		if (['/', '/play'].includes($page.url.pathname)) $paused = true;
 		
 		const sound = localStorage.getItem('sound');
 		if (sound === null) localStorage.setItem('sound', 'true');
-		if (sound === 'true') {
-			let music = $page.url.pathname === '/play' ? '/game-music-loop.mp3' : '/menu-music-loop.mp3';
-			document.addEventListener('click', () => playOnLoop(music), { once: true });
-			document.addEventListener('keydown', () => playOnLoop(music), { once: true });
-		}
+		if (sound === 'true') startMusic();
 
 		window.onkeydown = (e) => {
 			$paused = e.key === 'Escape' ? !$paused : $paused
 		};
+	});
+
+	onDestroy(() => {
+		audioInstances.forEach(audio => audio.pause());
+		audioInstances = [];
+	});
+
+	onNavigate(() => {
+		path = get(navigating)?.to?.url.pathname || get(page).url.pathname;
+		if ([$navigating?.from?.url.pathname, $navigating?.to?.url.pathname].includes('/play')) {
+			isPlaying = false;
+			audioInstances.forEach(audio => audio.pause());
+			audioInstances = [];
+			startMusic();
+		}
 	});
 
 	$effect(() => {

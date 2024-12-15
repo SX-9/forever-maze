@@ -161,17 +161,18 @@ export class Game {
         time: number,
         invalid?: boolean,
     }[] = [];
-    lastTime = Date.now();
-    startTime = Date.now();
+    last = 0;
+    elapsed = 0;
     invalid = false;
     updateHooks: ((game: this) => void)[] = [];
+    timer: NodeJS.Timeout | null = null;
+    onTimeTick = () => {};
 
     constructor(maze: Maze<any>) {
         this.maze = maze;
         this.player = { x: 0, y: 0 };
         this.records = [];
         this.placeMark();
-
     }
 
     placeMark() {
@@ -192,14 +193,13 @@ export class Game {
             else return reject(`wall collision ${symbols[direction]}`);
 
             if (this.player.x === this.mark.x && this.player.y === this.mark.y) {
-                let current = Date.now();
                 this.records.push({
-                    diff: Math.round(((current - this.lastTime) / 1000) * 100) / 100,
-                    time: Math.round(((current - this.startTime) / 1000) * 100) / 100,
+                    diff: this.elapsed - this.last,
+                    time: this.elapsed,
                     invalid: this.invalid,
                 });
 
-                this.lastTime = current;
+                this.last = this.elapsed;
                 this.placeMark();
             }
 
@@ -214,5 +214,16 @@ export class Game {
 
     onGameUpdate(hook: (game: this) => void) {
         this.updateHooks.push(hook);
+    }
+
+    startTimer() {
+        this.timer = setInterval(() => {
+            this.elapsed += 1;
+            this.onTimeTick();
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timer) clearInterval(this.timer);
     }
 }
